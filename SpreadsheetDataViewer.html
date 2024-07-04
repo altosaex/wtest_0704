@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企業別面接質問集</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+<body>
+    <h1>企業別面接質問集</h1>
+    <input type="text" id="searchInput" placeholder="Search in Column C...">
+    <button onclick="searchData()">Search</button>
+    <table id="resultsTable">
+        <tr>
+            <th>面接官からの質問①</th>
+            <th>面接官からの質問②</th>
+            <th>面接官からの質問③</th>
+						<th>面接官からの質問④</th>
+						<th>面接官からの質問⑤</th>
+						<th>面接官からの質問⑥</th>
+						<th>面接官からの質問⑦</th>
+						<th>面接官からの質問⑧</th>
+						<th>面接官からの質問⑨</th>
+						<th>面接官からの質問⑩</th>
+            <!-- Add more headers if needed -->
+        </tr>
+    </table>
+
+		<script>
+			let spreadsheetData = [];
+			
+			window.onload = function() {
+					loadSpreadsheetData();
+			};
+			
+			function loadSpreadsheetData() {
+					axios.get('https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1ifJM6t0e8Tvs5A9rP2d5iwHhSnGNtgKzdoCaS47IdtHYKj4NJ-ALkpOMuaay-LlyIMLmIIkAbAx/pub?output=csv')
+							.then(function(response) {
+									spreadsheetData = parseCSV(response.data);
+							})
+							.catch(function(error) {
+									console.error('Error loading spreadsheet data:', error);
+							});
+			}
+			
+			function parseCSV(data) {
+					const rows = data.split(/\r\n|\n/);
+					// ヘッダーを除いて、データがある行だけを抽出
+					const columns = rows.map(row => row.split(',')).filter(row => row.length > 7 && row[2].trim() !== ''); // C列とH列のデータが存在する行のみ保持
+					return columns.slice(1); // ヘッダ行を除外
+			}
+			
+			function searchData() {
+					const searchValue = document.getElementById('searchInput').value.toLowerCase();
+					const filteredData = spreadsheetData.filter(row => 
+							row[2] && row[2].toLowerCase().includes(searchValue)
+					);
+					displayResults(filteredData);
+			}
+			
+			function displayResults(data) {
+					const table = document.getElementById('resultsTable');
+					while (table.rows.length > 1) table.deleteRow(1); // 古い結果をクリア
+			
+					data.forEach(row => {
+							const newRow = table.insertRow();
+							for (let i = 6; i < row.length; i++) { // H列以降のデータを表示
+									const newCell = newRow.insertCell();
+									newCell.textContent = row[i];
+							}
+					});
+			}
+			</script>
+			
+</body>
+</html>
